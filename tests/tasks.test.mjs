@@ -12,6 +12,17 @@ function memory(initial = null) {
 function core() { const scope = vm.createContext({}); vm.runInContext(coreSource, scope); return scope.TaskCore; }
 const plain = value => JSON.parse(JSON.stringify(value));
 
+test('single-file page uses only inline scripts with core loaded before app', () => {
+  const scripts = [...html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script\s*>/gi)];
+  assert.equal(scripts.length, 2, 'The page must contain exactly the two inline scripts');
+  for (const [, attributes, body] of scripts) {
+    assert.doesNotMatch(attributes, /\bsrc\s*=/i, 'Single-file page must not request external scripts');
+    assert.ok(body.trim(), 'Inline script must not be empty');
+  }
+  assert.match(scripts[0][1], /\bid="task-core"/);
+  assert.match(scripts[1][1], /\bid="task-app"/);
+});
+
 test('add, edit, toggle both ways and delete without mutating previous state', () => {
   const c = core();
   const first = c.change([], { type: 'add', id: 'one', title: '  阅读  ' });
