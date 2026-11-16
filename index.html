@@ -33,7 +33,7 @@ body {
 h1 { margin: 12px 0; font-size: 30px; }
 .description, .hint { color: #606e84; line-height: 1.6; }
 .description { font-size: 14px; }
-output {
+#count {
   display: block;
   padding: 26px 0;
   font-size: clamp(44px, 12vw, 80px);
@@ -60,6 +60,8 @@ button:focus-visible { outline: 3px solid #bd6a13; outline-offset: 4px; }
 .primary:hover { background: #324a9f; }
 .reset { margin-top: 16px; padding: 0 24px; background: white; font-size: 15px; }
 .hint { margin: 22px 0 0; font-size: 12px; }
+.operation-summary { color: #606e84; font-size: 14px; }
+#operations { color: #24324a; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 @media (max-width: 360px) {
   body { padding: 12px; }
   .counter { padding: 28px 18px; }
@@ -68,18 +70,24 @@ button:focus-visible { outline: 3px solid #bd6a13; outline-offset: 4px; }
   <script type="module">
 export function createCounter() {
   let value = 0;
+  let operations = 0;
   return {
     get value() { return value; },
-    increment() { return ++value; },
-    decrement() { return --value; },
-    reset() { value = 0; return value; },
+    get operations() { return operations; },
+    increment() { operations++; return ++value; },
+    decrement() { operations++; return --value; },
+    reset() { operations++; value = 0; return value; },
   };
 }
 
 export function mountCounter(root) {
   const counter = createCounter();
   const output = root.querySelector('#count');
-  const render = () => { output.textContent = String(counter.value); };
+  const operationsOutput = root.querySelector('#operations');
+  const render = () => {
+    output.textContent = String(counter.value);
+    operationsOutput.textContent = String(counter.operations);
+  };
   for (const action of ['increment', 'decrement', 'reset']) {
     root.querySelector(`#${action}`).addEventListener('click', () => {
       counter[action]();
@@ -99,6 +107,7 @@ if (typeof document !== "undefined") mountCounter(document);
     <h1 id="title">计数器</h1>
     <p class="description">从零开始，记录你的每一次变化。</p>
     <output id="count" aria-live="polite" aria-atomic="true" aria-label="当前计数">0</output>
+    <p class="operation-summary">累计操作次数：<output id="operations" aria-live="polite" aria-atomic="true" aria-label="累计操作次数">0</output></p>
     <div class="actions" role="group" aria-label="调整计数">
       <button id="decrement" type="button" aria-label="减一">−1</button>
       <button id="increment" class="primary" type="button" aria-label="加一">+1</button>
