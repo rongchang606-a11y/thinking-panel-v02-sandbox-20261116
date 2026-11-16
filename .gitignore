@@ -3,3 +3,5 @@ dist/
 *.log
 test-results.txt
 build-results.txt
+
+.panel/
