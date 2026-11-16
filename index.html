@@ -1,1 +1,153 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V0.2 独立开发测试项目</title></head><body><main id="app"><h1>等待开发任务</h1><p>此仓库只用于思维面板自动化闭环测试。</p></main></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>我的任务清单</title>
+  <style>
+:root { font-family: system-ui, "Microsoft YaHei", sans-serif; color: #20352e; background: #f3f6f2; color-scheme: light; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 780px; padding: 56px 24px 24px; margin: auto; }
+header { margin-bottom: 28px; }
+h1 { margin: 8px 0; font-size: clamp(28px, 6vw, 40px); }
+header p, footer, .hint { color: #596b63; }
+.eyebrow { font-size: 13px; letter-spacing: 2px; }
+.panel { background: white; padding: 28px; border: 1px solid #dbe4dc; border-radius: 20px; box-shadow: 0 12px 35px #20352e08; }
+label { font-weight: 600; }
+.entry { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+input:not([type]) { flex: 1 1 240px; min-width: 0; width: 100%; border: 1px solid #aabdb2; border-radius: 9px; padding: 12px; font: inherit; }
+button { border: 1px solid transparent; border-radius: 9px; padding: 11px 14px; background: #245e48; color: white; font: inherit; cursor: pointer; }
+button:hover { filter: brightness(.92); }
+button.secondary { background: #eef4ef; color: #24533e; }
+button.delete { background: #fff1ef; color: #9c352a; }
+:focus-visible { outline: 3px solid #d17a26; outline-offset: 3px; }
+.hint, footer { font-size: 13px; }
+#status { color: #8c3a1f; overflow-wrap: anywhere; }
+#status:empty { display: none; }
+#summary { padding-top: 20px; border-top: 1px solid #e5ece6; color: #596b63; }
+#task-list { padding: 0; margin: 0; list-style: none; }
+.task { display: flex; align-items: center; gap: 12px; padding: 16px 0; border-bottom: 1px solid #e5ece6; }
+.task label { flex: 1; min-width: 0; overflow-wrap: anywhere; white-space: pre-wrap; font-weight: 400; }
+.task input { width: 20px; height: 20px; accent-color: #245e48; cursor: pointer; flex-shrink: 0; }
+.task.completed label { text-decoration: line-through; color: #6f7c73; }
+.actions { display: flex; gap: 6px; }
+.actions button { font-size: 14px; padding: 8px 10px; }
+footer { text-align: center; margin-top: 26px; }
+[hidden] { display: none !important; }
+@media (max-width: 520px) { main { padding: 28px 14px; } .panel { padding: 20px 16px; } .task { flex-wrap: wrap; } .task label { flex-basis: calc(100% - 40px); } .actions { margin-left: 32px; } .entry > button { flex: 1; } }
+</style>
+  <script src="src/tasks.js" defer></script>
+  <script src="src/app.js" defer></script>
+</head>
+<body>
+  <main>
+    <header><p class="eyebrow">每天，专注一件事</p><h1>我的任务清单</h1><p>把想做的记下来，把做完的划掉。</p></header>
+    <section class="panel" aria-label="任务管理">
+      <form id="task-form">
+        <label for="task-title" id="form-label">新建任务</label>
+        <div class="entry"><input id="task-title" name="title" maxlength="200" required placeholder="接下来想做什么？" autocomplete="off"><button id="submit-task" type="submit">添加任务</button><button id="cancel-edit" class="secondary" type="button" hidden>取消编辑</button></div>
+        <p class="hint">最多 200 字；数据仅保存在当前浏览器中。</p>
+      </form>
+      <p id="status" role="status" aria-live="polite"></p>
+      <p id="summary"></p>
+      <p id="empty">还没有任务，先添加一件小事吧。</p>
+      <ul id="task-list" aria-label="任务列表"></ul>
+    </section>
+    <footer>无需登录 · 本地保存</footer>
+  </main>
+<script id="task-core">
+(function (root) {
+  'use strict';
+  const KEY = 'personal-task-list.v1';
+  function title(value) {
+    if (typeof value !== 'string' || !value.trim() || value.trim().length > 200) throw new Error('请输入 1–200 字的任务内容。');
+    return value.trim();
+  }
+  function validate(tasks) {
+    if (!Array.isArray(tasks)) throw new Error('保存的任务格式无效。');
+    const ids = new Set();
+    return tasks.map(task => {
+      if (!task || typeof task.id !== 'string' || !task.id || ids.has(task.id) || typeof task.completed !== 'boolean') throw new Error('保存的任务格式无效。');
+      ids.add(task.id);
+      return { id: task.id, title: title(task.title), completed: task.completed };
+    });
+  }
+  function load(storage) {
+    const raw = storage.getItem(KEY);
+    return raw === null ? [] : validate(JSON.parse(raw));
+  }
+  function save(storage, tasks) { storage.setItem(KEY, JSON.stringify(validate(tasks))); }
+  function change(tasks, action) {
+    if (action.type === 'add') {
+      if (typeof action.id !== 'string' || !action.id || tasks.some(t => t.id === action.id)) throw new Error('任务标识重复，请重试。');
+      return [...tasks, { id: action.id, title: title(action.title), completed: false }];
+    }
+    if (!tasks.some(t => t.id === action.id)) throw new Error('任务不存在，请重新选择。');
+    if (action.type === 'delete') return tasks.filter(t => t.id !== action.id);
+    if (action.type === 'edit') return tasks.map(t => t.id === action.id ? { ...t, title: title(action.title) } : t);
+    if (action.type === 'toggle') return tasks.map(t => t.id === action.id ? { ...t, completed: !t.completed } : t);
+    throw new Error('不支持的任务操作。');
+  }
+  root.TaskCore = Object.freeze({ KEY, title, load, save, change });
+})(globalThis);
+</script>
+<script id="task-app">
+(function () {
+  'use strict';
+  const core = globalThis.TaskCore;
+  const get = id => document.getElementById(id);
+  const form = get('task-form'), input = get('task-title'), list = get('task-list');
+  const status = get('status'), cancel = get('cancel-edit');
+  let tasks = [], editing = null, storage, readable = true;
+  try { storage = window.localStorage; tasks = core.load(storage); }
+  catch { readable = false; status.textContent = '无法读取本地任务。为保护原有数据，暂不保存更改；请检查浏览器存储设置或备份数据后修复，再刷新页面。'; }
+  function reset() {
+    editing = null; input.value = ''; cancel.hidden = true;
+    get('submit-task').textContent = '添加任务'; get('form-label').textContent = '新建任务';
+  }
+  function commit(action) {
+    if (!readable) return false;
+    let next;
+    try { next = core.change(tasks, action); }
+    catch (error) { status.textContent = error.message; return false; }
+    try { core.save(storage, next); }
+    catch { status.textContent = '保存失败，更改尚未生效。请检查浏览器存储空间或设置后重试。'; return false; }
+    tasks = next; status.textContent = ''; render(); return true;
+  }
+  function render() {
+    list.replaceChildren();
+    get('empty').hidden = tasks.length > 0 || !readable;
+    get('summary').textContent = readable ? `${tasks.length} 项任务 · ${tasks.filter(t => t.completed).length} 项已完成` : '本地任务暂不可读取';
+    tasks.forEach(task => {
+      const row = document.createElement('li'); row.className = `task${task.completed ? ' completed' : ''}`;
+      const check = document.createElement('input'); check.type = 'checkbox'; check.checked = task.completed; check.id = `task-${task.id}`;
+      const label = document.createElement('label'); label.htmlFor = check.id; label.textContent = task.title;
+      check.addEventListener('change', () => {
+        if (!commit({ type: 'toggle', id: task.id })) check.checked = task.completed;
+        else document.getElementById(check.id)?.focus();
+      });
+      const actions = document.createElement('div'); actions.className = 'actions';
+      const edit = document.createElement('button'); edit.type = 'button'; edit.className = 'secondary'; edit.textContent = '编辑'; edit.setAttribute('aria-label', `编辑任务：${task.title}`);
+      edit.addEventListener('click', () => {
+        editing = task.id; input.value = task.title; cancel.hidden = false;
+        get('submit-task').textContent = '保存修改'; get('form-label').textContent = '编辑任务'; input.focus();
+      });
+      const remove = document.createElement('button'); remove.type = 'button'; remove.className = 'delete'; remove.textContent = '删除'; remove.setAttribute('aria-label', `删除任务：${task.title}`);
+      remove.addEventListener('click', () => { if (commit({ type: 'delete', id: task.id })) { if (editing === task.id) reset(); input.focus(); } });
+      actions.append(edit, remove); row.append(check, label, actions); list.append(row);
+    });
+  }
+  form.addEventListener('submit', event => {
+    event.preventDefault();
+    const action = editing ? { type: 'edit', id: editing, title: input.value } : { type: 'add', id: window.crypto?.randomUUID?.() || `${Date.now()}-${Math.random().toString(36).slice(2)}`, title: input.value };
+    if (commit(action)) { reset(); input.focus(); }
+  });
+  cancel.addEventListener('click', () => { reset(); input.focus(); });
+  input.addEventListener('keydown', event => { if (event.key === 'Escape' && editing) { reset(); input.focus(); } });
+  if (!readable) { input.disabled = true; get('submit-task').disabled = true; }
+  render();
+})();
+</script>
+</body>
+</html>
