@@ -1,9 +1,29 @@
-# Thinking Panel V0.2 isolated sandbox
+# 我的任务清单
 
-This repository contains disposable development test code only. It is not LifeOS or any production project.
+思维面板 V0.2 独立测试项目。纯 HTML、CSS、JavaScript，无依赖、账号、数据库或外部服务。
 
-The baseline is a minimal dependency-free Web scaffold. Actual features and tests are implemented by the background Codex task on `automation/task-*` branches.
+## 使用
 
-`npm test` runs Node's built-in test runner; `npm run build` creates a static Web build.
+直接用现代浏览器打开根目录 `index.html`，无需安装或启动服务。
 
-The trusted delivery workflow tests task branches and opens or updates a PR after successful CI. Acceptance in Thinking Panel records the exact commit; no automatic merge or production release is performed.
+- 输入 1–200 字的任务内容，点击“添加任务”或按 Enter 新建。
+- 点击“编辑”，修改内容后点击“保存修改”；“取消编辑”或 Escape 放弃修改。
+- 勾选任务表示完成，再次取消勾选恢复未完成。
+- 点击“删除”移除该任务，删除会立即保存。
+
+数据通过 localStorage 保存在当前浏览器，刷新后恢复。浏览器、用户配置或页面来源不同，数据不会同步；清除浏览器数据会删除任务。直接打开本地文件时，存储支持取决于浏览器，请使用同一浏览器和同一路径。隐私模式可能不保留数据。存储读取失败或损坏时禁止覆盖原有内容；写入失败时保留原状态并提示重试。
+
+## 验证和构建
+
+需要 Node.js 22 或更新版本，无需安装依赖：
+
+```sh
+npm test
+npm run build
+```
+
+测试使用 Node 内置测试运行器和虚拟机，覆盖任务操作、输入校验、存储恢复、损坏数据、页面事件、取消编辑及保存失败回滚。页面事件测试使用最小 DOM 适配器，不等同于真实浏览器视觉或兼容性验收。
+
+样式和脚本均内嵌在 HTML 中，构建产物为独立的 `dist/index.html`。可直接打开构建页面，也可通过任意静态站点服务提供整个 `dist` 目录。移动端布局采用自适应宽度，长任务内容自动换行，按钮及表单支持键盘操作。
+
+受保护的交付工作流和构建脚本保持不变。Git 交付、PR 和远端 CI 由可信交付桥执行，本地测试与构建结果不代表远端交付已完成。
