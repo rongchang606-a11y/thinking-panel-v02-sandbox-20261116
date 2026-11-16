@@ -99,6 +99,14 @@ test('all button handlers update the displayed count', () => {
   assert.equal(operations(), '7');
 });
 
+test('project description is visible directly below the title and retains the original description', () => {
+  assert.match(html, /<h1 id="title">计数器<\/h1>\s*<p class="description" id="project-description">连续开发验证项目<\/p>\s*<p class="description">从零开始，记录你的每一次变化。<\/p>/);
+  const description = html.match(/<p\b[^>]*id="project-description"[^>]*>/)[0];
+  assert.doesNotMatch(description, /\b(?:hidden|style|aria-hidden)\s*(?:=|>)/i);
+  const styles = html.match(/<style>([\s\S]*?)<\/style>/)[1];
+  assert.doesNotMatch(styles, /(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\s|;|}))/i);
+});
+
 test('page provides accessible controls and self-contained styles and logic', () => {
   for (const id of ['increment', 'decrement', 'reset']) {
     assert.match(html, new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`));
