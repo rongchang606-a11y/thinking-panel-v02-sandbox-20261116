@@ -1,0 +1,58 @@
+name: Test and prepare PR
+on:
+  push:
+    branches: ['automation/**']
+permissions:
+  contents: read
+concurrency:
+  group: sandbox-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Automated tests
+        shell: bash
+        run: npm test 2>&1 | tee test-results.txt
+      - name: Production build
+        shell: bash
+        run: npm run build 2>&1 | tee build-results.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-${{ github.sha }}
+          path: |
+            test-results.txt
+            build-results.txt
+          retention-days: 14
+  prepare-pr:
+    needs: checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const head = context.ref.replace('refs/heads/', '');
+            const {owner, repo} = context.repo;
+            const existing = await github.rest.pulls.list({owner, repo, state: 'open', head: `${owner}:${head}`});
+            const body = `Automated test delivery.\n\nCommit: ${context.sha}\nCI and logs: https://github.com/${owner}/${repo}/actions/runs/${context.runId}\n\nAwaiting human acceptance in Thinking Panel. This workflow does not merge PRs.`;
+            if (existing.data.length) {
+              await github.rest.pulls.update({owner, repo, pull_number: existing.data[0].number, body});
+              core.info(`Updated PR #${existing.data[0].number}`);
+            } else {
+              const commit = await github.rest.repos.getCommit({owner, repo, ref: context.sha});
+              const title = commit.data.commit.message.split('\n')[0].slice(0, 180);
+              const pr = await github.rest.pulls.create({owner, repo, head, base: 'main', title, body});
+              core.info(`Created PR #${pr.data.number}`);
+            }
