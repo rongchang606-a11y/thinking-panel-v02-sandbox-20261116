@@ -20,6 +20,24 @@ test('decrements through zero to negative values', () => {
   assert.equal(counter.increment(), -1);
 });
 
+test('adding ten changes the current value by ten and counts one operation per call', () => {
+  const counter = createCounter();
+  assert.equal(counter.addTen(), 10);
+  assert.equal(counter.value, 10);
+  assert.equal(counter.operations, 1);
+  assert.equal(counter.addTen(), 20);
+  assert.equal(counter.operations, 2);
+  counter.reset();
+  counter.decrement();
+  assert.equal(counter.addTen(), 9);
+  assert.equal(counter.value, 9);
+  assert.equal(counter.operations, 5);
+  assert.equal(counter.increment(), 10);
+  assert.equal(counter.decrement(), 9);
+  assert.equal(counter.reset(), 0);
+  assert.equal(counter.operations, 8);
+});
+
 test('reset returns positive and negative counts to zero', () => {
   const counter = createCounter();
   counter.increment();
@@ -63,7 +81,7 @@ test('each action counts once, including repeated resets at zero', () => {
 
 test('all button handlers update the displayed count', () => {
   const elements = new Map();
-  for (const id of ['count', 'operations', 'increment', 'decrement', 'reset']) {
+  for (const id of ['count', 'operations', 'increment', 'addTen', 'decrement', 'reset']) {
     elements.set(`#${id}`, {
       textContent: '',
       addEventListener(type, handler) {
@@ -97,6 +115,17 @@ test('all button handlers update the displayed count', () => {
   click('reset');
   assert.equal(displayed(), '0');
   assert.equal(operations(), '7');
+  click('decrement');
+  click('addTen');
+  assert.equal(displayed(), '9');
+  assert.equal(operations(), '9');
+  click('addTen');
+  assert.equal(displayed(), '19');
+  assert.equal(operations(), '10');
+  click('increment');
+  click('reset');
+  assert.equal(displayed(), '0');
+  assert.equal(operations(), '12');
 });
 
 test('project description is visible directly below the title and retains the original description', () => {
@@ -108,9 +137,10 @@ test('project description is visible directly below the title and retains the or
 });
 
 test('page provides accessible controls and self-contained styles and logic', () => {
-  for (const id of ['increment', 'decrement', 'reset']) {
+  for (const id of ['increment', 'addTen', 'decrement', 'reset']) {
     assert.match(html, new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`));
   }
+  assert.match(html, /<button[^>]*id="addTen"[^>]*aria-label="加十"[^>]*>\+10<\/button>/);
   assert.match(html, /<output[^>]*id="count"[^>]*aria-live="polite"/);
   assert.match(html, /<output[^>]*id="operations"[^>]*aria-live="polite"[^>]*>0<\/output>/);
   assert.match(html, /<style>[\s\S]*:focus-visible/);

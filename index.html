@@ -75,6 +75,7 @@ export function createCounter() {
     get value() { return value; },
     get operations() { return operations; },
     increment() { operations++; return ++value; },
+    addTen() { operations++; value += 10; return value; },
     decrement() { operations++; return --value; },
     reset() { operations++; value = 0; return value; },
   };
@@ -88,7 +89,7 @@ export function mountCounter(root) {
     output.textContent = String(counter.value);
     operationsOutput.textContent = String(counter.operations);
   };
-  for (const action of ['increment', 'decrement', 'reset']) {
+  for (const action of ['increment', 'addTen', 'decrement', 'reset']) {
     root.querySelector(`#${action}`).addEventListener('click', () => {
       counter[action]();
       render();
@@ -112,6 +113,7 @@ if (typeof document !== "undefined") mountCounter(document);
     <div class="actions" role="group" aria-label="调整计数">
       <button id="decrement" type="button" aria-label="减一">−1</button>
       <button id="increment" class="primary" type="button" aria-label="加一">+1</button>
+      <button id="addTen" type="button" aria-label="加十">+10</button>
     </div>
     <button id="reset" class="reset" type="button">重置</button>
     <p class="hint">支持负数 · 重置后回到 0</p>
