@@ -71,13 +71,14 @@ button:focus-visible { outline: 3px solid #bd6a13; outline-offset: 4px; }
 body { background: #eef4f5; }
 .workspace { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, 1fr); width: min(100%, 980px); border-radius: 28px; box-shadow: 0 20px 60px #24324a0d; overflow: hidden; background: white; }
 .mountain { position: relative; isolation: isolate; min-height: 480px; padding: 42px 32px; background: linear-gradient(155deg, #e8f2f6, #d6e5e9); }
-.mountain img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: -2; }
+.mountain img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; z-index: -2; }
 .mountain::after { content: ''; position: absolute; inset: 0; background: linear-gradient(#f0f7fae6, #eef6f866 65%, transparent); z-index: -1; }
 .mountain-copy { max-width: 340px; }
 .mountain h2 { margin: 16px 0; font-size: clamp(30px, 4vw, 44px); letter-spacing: .08em; }
 .mountain p { line-height: 1.8; color: #435e70; }
 .mountain .image-placeholder { margin-top: 40px; font-size: 13px; }
-.workspace .counter { width: 100%; border: 0; border-radius: 0; box-shadow: none; }
+.workspace .counter { width: 100%; min-width: 0; border: 0; border-radius: 0; box-shadow: none; }
+.workspace h1, .workspace h2 { overflow-wrap: anywhere; }
 .focus-toggle { padding: 0 20px; min-height: 44px; font-size: 14px; margin-top: 10px; }
 .focus-toggle[aria-pressed="true"] { background: #254f5d; color: white; border-color: #254f5d; }
 .workspace.is-focused { width: min(100%, 620px); grid-template-columns: minmax(0, 1fr); }
@@ -87,17 +88,22 @@ body { background: #eef4f5; }
 .workspace.is-focused .actions button { min-height: 64px; }
 @media (max-width: 760px) {
   .workspace { grid-template-columns: minmax(0, 1fr); max-width: 560px; }
-  .mountain { min-height: 240px; padding: 24px; }
+  .mountain { min-height: 280px; aspect-ratio: 1672 / 941; padding: 24px; }
   .mountain h2 { margin: 8px 0; }
   .mountain .image-placeholder { margin-top: 20px; }
 }
 @media (max-width: 360px) { .workspace.is-focused .counter { padding: 28px 18px; } }
+@media (orientation: landscape) and (max-height: 600px) {
+  body { align-items: start; padding: 16px; }
+  .workspace .counter { padding: 24px; }
+  .workspace #count { padding: 16px 0; }
+}
 </style>
 </head>
 <body>
   <div class="workspace" id="workspace">
   <section class="mountain" aria-labelledby="mountain-title">
-    <img id="mountain-image" src="assets/v04/background.png" alt="" hidden>
+    <img id="mountain-image" src="assets/v04/background.png" width="1672" height="941" decoding="async" alt="" hidden>
     <div class="mountain-copy">
       <p class="eyebrow">留一点时间，给当下</p>
       <h2 id="mountain-title">山间专注</h2>
