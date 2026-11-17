@@ -1,9 +1,10 @@
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
-const { createCounter, mountCounter } = await import(`data:text/javascript;base64,${Buffer.from(script).toString('base64')}`);
+const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const { createCounter, mountCounter } = runInNewContext(script + ";({ createCounter, mountCounter })");
 
 test('starts at zero and increments repeatedly', () => {
   const counter = createCounter();
@@ -115,5 +116,6 @@ test('page provides accessible controls and self-contained styles and logic', ()
   assert.match(html, /<output[^>]*id="operations"[^>]*aria-live="polite"[^>]*>0<\/output>/);
   assert.match(html, /<style>[\s\S]*:focus-visible/);
   assert.ok(script.includes('mountCounter(document)'));
+  assert.doesNotMatch(html, /(?:type="module"|https?:\/\/|\bimport\s)/);
   assert.doesNotMatch(html, /<(?:script|link)[^>]*(?:src|href)=/);
 });
