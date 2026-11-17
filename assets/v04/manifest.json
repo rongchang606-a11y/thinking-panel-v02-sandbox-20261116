@@ -1,0 +1,10 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: stylized-concept\nAsset type: PNG hero background for a mountain focus counter web page.\nPrimary request: A quiet, restrained pastel illustration of pale blue early morning mountains, layered distant ridgelines, delicate drifting mist, and gentle warm morning light.\nComposition/framing: Wide horizontal landscape close to 16:9, at least 640 by 360 pixels. Keep the upper half and central area spacious, pale, low contrast and uncluttered for interface content. Mountain layers sit mainly along the lower portion and edges, receding softly into fog.\nStyle/medium: Refined soft watercolor-like pastel illustration, subtle paper texture, simple graceful silhouettes, muted pale blues with a very subtle warm dawn glow.\nLighting/mood: Serene, airy, meditative morning light.\nConstraints: No text, letters, numbers, logo, watermark, people, buildings, interface elements, borders or frames. Opaque background. Deliver a PNG image.",
+  "width": 1672,
+  "height": 941,
+  "format": "PNG",
+  "generated_at": "2026-11-17T11:25:38Z",
+  "generation_started_at": "2026-11-17T11:24:54Z",
+  "asset": "assets/v04/background.png"
+}
