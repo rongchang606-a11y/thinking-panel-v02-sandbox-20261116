@@ -1,1 +1,194 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>V0.2 独立开发测试项目</title></head><body><main id="app"><h1>等待开发任务</h1><p>此仓库只用于思维面板自动化闭环测试。</p></main></body></html>
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>山间专注计数器 · 思维面板</title>
+  <style>
+:root {
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: #24324a;
+  background: #eef2f8;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.counter {
+  width: min(100%, 440px);
+  padding: 40px 28px 28px;
+  border: 1px solid #dce3ef;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 20px 60px #24324a0d;
+  text-align: center;
+}
+.eyebrow { color: #5366a3; font-size: 13px; letter-spacing: .12em; }
+h1 { margin: 12px 0; font-size: 30px; }
+.description, .hint { color: #606e84; line-height: 1.6; }
+.description { font-size: 14px; }
+#count {
+  display: block;
+  padding: 26px 0;
+  font-size: clamp(44px, 12vw, 80px);
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.actions { display: flex; gap: 12px; }
+button {
+  min-height: 52px;
+  border: 1px solid #d9e0ec;
+  border-radius: 12px;
+  background: #f0f3f9;
+  color: #24324a;
+  font: inherit;
+  font-size: 20px;
+  cursor: pointer;
+}
+.actions button { flex: 1; min-width: 0; }
+button:hover { background: #e1e7f3; }
+button:active { transform: translateY(1px); }
+button:focus-visible { outline: 3px solid #bd6a13; outline-offset: 4px; }
+.primary { background: #405bba; border-color: #405bba; color: white; }
+.primary:hover { background: #324a9f; }
+.reset { margin-top: 16px; padding: 0 24px; background: white; font-size: 15px; }
+.hint { margin: 22px 0 0; font-size: 12px; }
+.operation-summary { color: #606e84; font-size: 14px; }
+#operations { color: #24324a; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+@media (max-width: 360px) {
+  body { padding: 12px; }
+  .counter { padding: 28px 18px; }
+}
+</style>
+<style id="focus-styles">
+body { background: #eef4f5; }
+.workspace { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(340px, 1fr); width: min(100%, 980px); border-radius: 28px; box-shadow: 0 20px 60px #24324a0d; overflow: hidden; background: white; }
+.mountain { position: relative; isolation: isolate; min-height: 480px; padding: 42px 32px; background: linear-gradient(155deg, #e8f2f6, #d6e5e9); }
+.mountain img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center bottom; pointer-events: none; z-index: -2; }
+.mountain::after { content: ''; position: absolute; inset: 0; background: linear-gradient(#f0f7fae6, #eef6f866 65%, transparent); z-index: -1; }
+.mountain-copy { max-width: 340px; }
+.mountain h2 { margin: 16px 0; font-size: clamp(30px, 4vw, 44px); letter-spacing: .08em; }
+.mountain p { line-height: 1.8; color: #435e70; }
+.mountain .image-placeholder { margin-top: 40px; font-size: 13px; }
+.workspace .counter { width: 100%; min-width: 0; border: 0; border-radius: 0; box-shadow: none; }
+.workspace h1, .workspace h2 { overflow-wrap: anywhere; }
+.focus-toggle { padding: 0 20px; min-height: 44px; font-size: 14px; margin-top: 10px; }
+.focus-toggle[aria-pressed="true"] { background: #254f5d; color: white; border-color: #254f5d; }
+.workspace.is-focused { width: min(100%, 620px); grid-template-columns: minmax(0, 1fr); }
+.workspace.is-focused .mountain { display: none; }
+.workspace.is-focused .counter { padding: 32px; }
+.workspace.is-focused #count { font-size: clamp(64px, 14vw, 112px); padding: 32px 0; }
+.workspace.is-focused .actions button { min-height: 64px; }
+@media (max-width: 760px) {
+  .workspace { grid-template-columns: minmax(0, 1fr); max-width: 560px; }
+  .mountain { min-height: 280px; aspect-ratio: 1672 / 941; padding: 24px; }
+  .mountain h2 { margin: 8px 0; }
+  .mountain .image-placeholder { margin-top: 20px; }
+}
+@media (max-width: 360px) { .workspace.is-focused .counter { padding: 28px 18px; } }
+@media (orientation: landscape) and (max-height: 600px) {
+  body { align-items: start; padding: 16px; }
+  .workspace .counter { padding: 24px; }
+  .workspace #count { padding: 16px 0; }
+}
+</style>
+</head>
+<body>
+  <div class="workspace" id="workspace">
+  <section class="mountain" aria-labelledby="mountain-title">
+    <img id="mountain-image" src="assets/v04/background.png" width="1672" height="941" decoding="async" alt="" hidden>
+    <div class="mountain-copy">
+      <p class="eyebrow">留一点时间，给当下</p>
+      <h2 id="mountain-title">山间专注</h2>
+      <p>一呼一吸，一次一步。</p>
+      <p id="image-placeholder" class="image-placeholder">山景准备中 · 此刻也可以开始专注</p>
+    </div>
+  </section>
+  <main class="counter" aria-labelledby="title">
+    <p class="eyebrow">每一步，都算数</p>
+    <h1 id="title">计数器</h1>
+    <p class="description" id="project-description">连续开发验证项目</p>
+    <p class="description">从零开始，记录你的每一次变化。</p>
+    <p class="description" id="workflow-status">先记录，再推进</p>
+    <p class="description" id="workspace-note">先验证，再扩展</p>
+    <output id="count" aria-live="polite" aria-atomic="true" aria-label="当前计数">0</output>
+    <p class="operation-summary">累计操作次数：<output id="operations" aria-live="polite" aria-atomic="true" aria-label="累计操作次数">0</output></p>
+    <p id="counter-summary" class="operation-summary">当前计数：0；累计操作：0</p>
+    <button id="focus-toggle" class="focus-toggle" type="button" aria-pressed="false" aria-controls="workspace">专注模式</button>
+    <div class="actions" role="group" aria-label="调整计数">
+      <button id="decrement" type="button" aria-label="减一">−1</button>
+      <button id="increment" class="primary" type="button" aria-label="加一">+1</button>
+      <button id="addTen" type="button" aria-label="加十">+10</button>
+    </div>
+    <button id="reset" class="reset" type="button">重置</button>
+    <p class="hint">支持负数 · 重置后回到 0</p>
+  </main>
+  </div>
+  <script>
+function createCounter() {
+  let value = 0;
+  let operations = 0;
+  return {
+    get value() { return value; },
+    get operations() { return operations; },
+    increment() { operations++; return ++value; },
+    addTen() { operations++; value += 10; return value; },
+    decrement() { operations++; return --value; },
+    reset() { operations++; value = 0; return value; },
+  };
+}
+
+function mountCounter(root) {
+  const counter = createCounter();
+  const output = root.querySelector('#count');
+  const operationsOutput = root.querySelector('#operations');
+  const summary = root.querySelector('#counter-summary');
+  const render = () => {
+    output.textContent = String(counter.value);
+    operationsOutput.textContent = String(counter.operations);
+    summary.textContent = `当前计数：${counter.value}；累计操作：${counter.operations}`;
+  };
+  for (const action of ['increment', 'addTen', 'decrement', 'reset']) {
+    root.querySelector(`#${action}`).addEventListener('click', () => {
+      counter[action]();
+      render();
+    });
+  }
+  render();
+  return counter;
+}
+
+if (typeof document !== "undefined") mountCounter(document);
+</script>
+<script id="focus-script">
+function mountFocus(root) {
+  const workspace = root.querySelector('#workspace');
+  const toggle = root.querySelector('#focus-toggle');
+  let focused = false;
+  toggle.addEventListener('click', function () {
+    focused = !focused;
+    workspace.classList.toggle('is-focused', focused);
+    toggle.setAttribute('aria-pressed', String(focused));
+    toggle.textContent = focused ? '恢复普通布局' : '专注模式';
+  });
+  const image = root.querySelector('#mountain-image');
+  const placeholder = root.querySelector('#image-placeholder');
+  function renderImage(loaded) {
+    image.hidden = !loaded;
+    placeholder.hidden = loaded;
+  }
+  image.addEventListener('load', function () { renderImage(image.naturalWidth > 0); });
+  image.addEventListener('error', function () { renderImage(false); });
+  renderImage(image.complete && image.naturalWidth > 0);
+}
+if (typeof document !== 'undefined') mountFocus(document);
+</script>
+</body>
+</html>
