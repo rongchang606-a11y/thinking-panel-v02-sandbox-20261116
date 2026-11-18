@@ -62,6 +62,21 @@ button:focus-visible { outline: 3px solid #bd6a13; outline-offset: 4px; }
 .hint { margin: 22px 0 0; font-size: 12px; }
 .operation-summary { color: #606e84; font-size: 14px; }
 #operations { color: #24324a; font-weight: 650; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.project-brief {
+  margin: 26px 0 0;
+  padding: 20px 22px;
+  border: 1px solid #dce3ef;
+  border-radius: 16px;
+  text-align: left;
+  color: #24324a;
+  background-color: #dce8f2;
+  background-image: linear-gradient(#f7fafce6, #e8f1f7e6), url("assets/v04/background.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+.project-brief h2 { margin: 0 0 8px; font-size: 18px; letter-spacing: .04em; }
+.project-brief p { margin: 0; color: #3f5468; font-size: 13px; line-height: 1.7; }
 @media (max-width: 360px) {
   body { padding: 12px; }
   .counter { padding: 28px 18px; }
@@ -129,6 +144,10 @@ body { background: #eef4f5; }
     </div>
     <button id="reset" class="reset" type="button">重置</button>
     <p class="hint">支持负数 · 重置后回到 0</p>
+    <section class="project-brief" id="project-brief" aria-labelledby="project-brief-title">
+      <h2 id="project-brief-title">项目说明</h2>
+      <p id="project-brief-text">山间专注 · 协作试验：开发与美术各自独立推进，用同一份计数页记录每一步进展。</p>
+    </section>
   </main>
   </div>
   <script>
