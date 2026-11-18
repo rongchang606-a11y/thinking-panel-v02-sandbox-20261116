@@ -101,3 +101,7 @@ V04 的山景、素材清单和美术交付说明沿用原成果；PNG 与清单
 固定共享文档 revision 1；《V0.5 协作与交付约定》版本 1，验证标识 `workspace-v05`。最终依赖及操作说明见 [docs/continuous-workflow.md](docs/continuous-workflow.md)。
 
 新增测试执行最终页面实际脚本，验证两条已选文案、加十、专注切换、图片失败与恢复的组合行为，并核验素材和文档的固定校验值。浏览器视觉、真实键盘操作和本人最终验收尚未完成。远端提交、CI、未合并 PR 和预览由可信交付桥后续处理，本轮未核实。
+
+## 执行器对比
+
+交付标记文件：[EXECUTOR-SMOKE.md](EXECUTOR-SMOKE.md)。该文件只有两行：第一行 `executor: deepseek-v4.1-flash`，第二行 `marker: executor-smoke`。
