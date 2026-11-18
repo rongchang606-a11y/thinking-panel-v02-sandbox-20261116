@@ -99,6 +99,36 @@ body { background: #eef4f5; }
   .workspace #count { padding: 16px 0; }
 }
 </style>
+<style id="executor-art-styles">
+.executor-compare {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 26px 32px;
+  border-top: 1px solid #dce3ef;
+  background: #fbfdff;
+}
+.executor-compare-copy { max-width: 440px; }
+.executor-compare h2 { margin: 10px 0; font-size: 22px; letter-spacing: .04em; overflow-wrap: anywhere; }
+.executor-compare p { margin: 0; color: #606e84; font-size: 14px; line-height: 1.7; }
+.executor-compare-art {
+  min-height: 150px;
+  aspect-ratio: 16 / 9;
+  border: 1px dashed #cfd9e8;
+  border-radius: 18px;
+  background-color: #e9f1f6;
+  background-image: url("assets/executor-compare/background.png"), linear-gradient(150deg, #e8f2f6, #d8e6ee 60%, #eef4f8);
+  background-size: cover, cover;
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+}
+@media (max-width: 760px) {
+  .executor-compare { grid-template-columns: minmax(0, 1fr); padding: 22px 24px; }
+  .executor-compare-art { min-height: 120px; }
+}
+</style>
 </head>
 <body>
   <div class="workspace" id="workspace">
@@ -130,6 +160,14 @@ body { background: #eef4f5; }
     <button id="reset" class="reset" type="button">重置</button>
     <p class="hint">支持负数 · 重置后回到 0</p>
   </main>
+  <section class="executor-compare" id="executor-compare" aria-labelledby="executor-compare-title">
+    <div class="executor-compare-art" id="executor-compare-art" aria-hidden="true"></div>
+    <div class="executor-compare-copy">
+      <p class="eyebrow">开发与美术协作 · 单项目工作台</p>
+      <h2 id="executor-compare-title">山间专注 · 协作试验</h2>
+      <p id="executor-compare-note">开发与美术各自独立交付；背景素材按相对路径 assets/executor-compare/background.png 引入，素材未到位时以 CSS 占位。</p>
+    </div>
+  </section>
   </div>
   <script>
 function createCounter() {

@@ -101,3 +101,15 @@ V04 的山景、素材清单和美术交付说明沿用原成果；PNG 与清单
 固定共享文档 revision 1；《V0.5 协作与交付约定》版本 1，验证标识 `workspace-v05`。最终依赖及操作说明见 [docs/continuous-workflow.md](docs/continuous-workflow.md)。
 
 新增测试执行最终页面实际脚本，验证两条已选文案、加十、专注切换、图片失败与恢复的组合行为，并核验素材和文档的固定校验值。浏览器视觉、真实键盘操作和本人最终验收尚未完成。远端提交、CI、未合并 PR 和预览由可信交付桥后续处理，本轮未核实。
+
+## V08 开发 × 美术独立素材目录
+
+本轮按 development 分工新增一个可见的项目说明区块 `section#executor-compare`，标题“山间专注 · 协作试验”，说明“开发与美术协作 · 单项目工作台”。区块位于工作台网格内，桌面横跨两列，760px 及以下堆叠为单列，专注模式下仍然可见。
+
+区块右侧的美术展示区 `div#executor-compare-art` 作为纯装饰层，只通过 CSS 引用相对路径 `assets/executor-compare/background.png`，没有新增 `<img>`。素材尚未到达或加载失败时，同一 `background-image` 声明中的 `linear-gradient` 与 `background-color` 就是简洁占位，不产生破图、不阻塞布局，也不影响任何脚本。美术交付由美术角色独立完成，本轮未生成、未修改图片，也未改动 `assets/v04/` 中的山景素材与清单。
+
+全部基线功能保留：加一、减一、加十、重置、累计操作次数、计数摘要、专注模式、山景图片及其占位、项目说明、`p#workflow-status`“先记录，再推进”和 `p#workspace-note`“先验证，再扩展”。新增块不注册事件，不改动计数状态。
+
+`tests/executor-compare.test.mjs` 检查区块位置、可见性、标题与说明文本、背景路径、CSS 占位与响应式契约，并执行页面实际脚本复核加减、加十、两次重置、专注切换、图片失败与恢复、新建页面的初始状态。既有测试继续覆盖其余行为。
+
+测试与构建使用任务指定的 Node 24.22.3；先将其目录放到当前 Shell 的 PATH 首位，再用该 Node 与 npm-cli.js 的绝对路径运行 `npm test` 和 `npm run build`。构建产物仍为 `dist/index.html` 与 `dist/assets/`；素材到位后需连同 `assets/executor-compare/` 一起部署。真实提交、CI、未合并 PR 和本人验收仍由可信交付桥与本人后续处理。
