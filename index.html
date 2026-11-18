@@ -98,6 +98,18 @@ body { background: #eef4f5; }
   .workspace .counter { padding: 24px; }
   .workspace #count { padding: 16px 0; }
 }
+.project-info { width: min(100%, 980px); margin-top: 18px; padding: 24px 28px; border: 1px solid #dce3ef; border-radius: 20px; background: #fff; box-shadow: 0 12px 36px #24324a0a; text-align: left; }
+.project-info h2 { margin: 0 0 6px; font-size: 18px; letter-spacing: .04em; }
+.project-info p { margin: 4px 0; color: #606e84; line-height: 1.7; font-size: 14px; }
+.project-info ul { margin: 10px 0 0; padding-left: 20px; color: #43506a; font-size: 14px; line-height: 1.8; }
+.project-meta { font-size: 12px; color: #7b879c; }
+.art-gallery { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(240px, 1fr); gap: 20px; align-items: center; width: min(100%, 980px); margin-top: 18px; padding: 20px; border: 1px solid #dce3ef; border-radius: 20px; background: #fff; box-shadow: 0 12px 36px #24324a0a; text-align: left; }
+.art-frame { position: relative; display: grid; place-items: center; aspect-ratio: 16 / 9; overflow: hidden; border-radius: 14px; background: linear-gradient(150deg, #e6edf6, #d7e3ee 55%, #eef3f8); }
+.art-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.gallery-placeholder { margin: 0; padding: 0 18px; color: #64748b; font-size: 13px; text-align: center; }
+.gallery-copy h2 { margin: 0 0 8px; font-size: 20px; }
+.gallery-copy p { margin: 0; color: #606e84; line-height: 1.7; font-size: 14px; }
+@media (max-width: 760px) { .art-gallery { grid-template-columns: minmax(0, 1fr); } }
 </style>
 </head>
 <body>
@@ -131,6 +143,26 @@ body { background: #eef4f5; }
     <p class="hint">支持负数 · 重置后回到 0</p>
   </main>
   </div>
+  <section class="project-info" id="project-info" aria-labelledby="project-info-title">
+    <h2 id="project-info-title">山间专注 · 协作试验</h2>
+    <p>开发与美术协作 · 单项目工作台</p>
+    <p class="project-meta">V0.3 连续开发验证规范 · 共享文档 revision 1</p>
+    <ul>
+      <li>保留计数器已有功能</li>
+      <li>交付可追踪的代码与美术</li>
+      <li>完成测试与本人验收</li>
+    </ul>
+  </section>
+  <section class="art-gallery" aria-labelledby="gallery-title">
+    <div class="art-frame">
+      <img id="gallery-image" src="assets/executor-compare/background.png" decoding="async" alt="" hidden>
+      <p id="gallery-placeholder" class="gallery-placeholder">协作美术准备中 · 素材到达后在此展示</p>
+    </div>
+    <div class="gallery-copy">
+      <h2 id="gallery-title">协作美术</h2>
+      <p>开发与美术协作试验的共享画面，素材就位后自动替换占位。</p>
+    </div>
+  </section>
   <script>
 function createCounter() {
   let value = 0;
@@ -189,6 +221,21 @@ function mountFocus(root) {
   renderImage(image.complete && image.naturalWidth > 0);
 }
 if (typeof document !== 'undefined') mountFocus(document);
+</script>
+<script id="gallery-script">
+function mountGallery(root) {
+  const image = root.querySelector('#gallery-image');
+  const placeholder = root.querySelector('#gallery-placeholder');
+  if (!image || !placeholder) return;
+  function renderImage(loaded) {
+    image.hidden = !loaded;
+    placeholder.hidden = loaded;
+  }
+  image.addEventListener('load', function () { renderImage(image.naturalWidth > 0); });
+  image.addEventListener('error', function () { renderImage(false); });
+  renderImage(image.complete && image.naturalWidth > 0);
+}
+if (typeof document !== 'undefined') mountGallery(document);
 </script>
 </body>
 </html>

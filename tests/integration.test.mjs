@@ -39,16 +39,31 @@ test('integrated PNG is byte-identical to the trusted art input and matches mani
   assert.ok(inflateSync(Buffer.concat(data)).length > manifest.width * manifest.height);
 });
 
-test('every page image resolves locally and intrinsic size agrees with the supplied PNG', () => {
+test('mountain image resolves locally and intrinsic size agrees with the supplied PNG', () => {
   const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
-  assert.equal(images.length, 1);
-  for (const image of images) {
-    const source = image.match(/src="([^"]+)"/)[1];
-    assert.equal(source, manifest.asset);
-    assert.ok(existsSync(new URL(source, root)));
-    assert.match(image, new RegExp(`width="${manifest.width}"`));
-    assert.match(image, new RegExp(`height="${manifest.height}"`));
-    assert.match(image, /alt=""/);
+  const mountain = images.find(image => /id="mountain-image"/.test(image));
+  assert.ok(mountain);
+  const source = mountain.match(/src="([^"]+)"/)[1];
+  assert.equal(source, manifest.asset);
+  assert.ok(existsSync(new URL(source, root)));
+  assert.match(mountain, new RegExp(`width="${manifest.width}"`));
+  assert.match(mountain, new RegExp(`height="${manifest.height}"`));
+  assert.match(mountain, /alt=""/);
+});
+
+test('collaboration art references the task art path relatively and tolerates a missing file', () => {
+  const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
+  assert.equal(images.length, 2);
+  const gallery = images.find(image => /id="gallery-image"/.test(image));
+  assert.ok(gallery);
+  const source = gallery.match(/src="([^"]+)"/)[1];
+  assert.equal(source, 'assets/executor-compare/background.png');
+  assert.doesNotMatch(source, /^(?:[a-z]+:)?\/\//i);
+  assert.equal(source.startsWith('/'), false);
+  assert.match(gallery, /alt=""/);
+  // The art role owns this file; development only points at it. Absence must stay non-fatal.
+  if (existsSync(new URL(source, root))) {
+    assert.ok(readFileSync(new URL(source, root)).length > 0);
   }
 });
 
