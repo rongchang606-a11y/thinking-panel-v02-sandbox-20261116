@@ -107,6 +107,18 @@ test('project description is visible directly below the title and retains the or
   assert.doesNotMatch(styles, /(?:display\s*:\s*none|visibility\s*:\s*hidden|opacity\s*:\s*0(?:\s|;|}))/i);
 });
 
+test('page shows the personally selected workflow label as a visible paragraph', () => {
+  const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)[1];
+  const paragraphs = [...main.matchAll(/<p\b([^>]*)>([^<]*)<\/p>/g)];
+  const status = paragraphs.filter(([, attributes]) => /\bid="workflow-status"/.test(attributes));
+  assert.equal(status.length, 1, 'exactly one workflow status paragraph is present in the page');
+  assert.equal(status[0][2], '先记录，再推进');
+  assert.doesNotMatch(status[0][1], /\b(?:hidden|style|aria-hidden)\b/i);
+  assert.equal([...html.matchAll(/\bid="workflow-status"/g)].length, 1);
+  assert.ok(main.indexOf('id="project-description"') < status[0].index);
+  assert.ok(status[0].index < main.indexOf('<output id="count"'));
+});
+
 test('page provides accessible controls and self-contained styles and logic', () => {
   for (const id of ['increment', 'decrement', 'reset']) {
     assert.match(html, new RegExp(`<button[^>]*id="${id}"[^>]*type="button"`));
