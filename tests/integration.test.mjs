@@ -39,17 +39,27 @@ test('integrated PNG is byte-identical to the trusted art input and matches mani
   assert.ok(inflateSync(Buffer.concat(data)).length > manifest.width * manifest.height);
 });
 
-test('every page image resolves locally and intrinsic size agrees with the supplied PNG', () => {
+test('the accepted mountain image resolves locally and matches the supplied PNG', () => {
   const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
-  assert.equal(images.length, 1);
-  for (const image of images) {
-    const source = image.match(/src="([^"]+)"/)[1];
-    assert.equal(source, manifest.asset);
-    assert.ok(existsSync(new URL(source, root)));
-    assert.match(image, new RegExp(`width="${manifest.width}"`));
-    assert.match(image, new RegExp(`height="${manifest.height}"`));
-    assert.match(image, /alt=""/);
-  }
+  const mountain = images.find(image => /id="mountain-image"/.test(image));
+  assert.ok(mountain, 'the accepted mountain image is present');
+  const source = mountain.match(/src="([^"]+)"/)[1];
+  assert.equal(source, manifest.asset);
+  assert.ok(existsSync(new URL(source, root)));
+  assert.match(mountain, new RegExp(`width="${manifest.width}"`));
+  assert.match(mountain, new RegExp(`height="${manifest.height}"`));
+  assert.match(mountain, /alt=""/);
+});
+
+test('the project art display references the configured relative path before the asset arrives', () => {
+  const artPath = 'assets/executor-compare/background.png';
+  const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
+  assert.equal(images.length, 2);
+  const projectArt = images.find(image => /id="project-art"/.test(image));
+  assert.ok(projectArt, 'the project art image is present');
+  assert.equal(projectArt.match(/src="([^"]+)"/)[1], artPath);
+  assert.match(projectArt, /\balt=""/);
+  assert.match(html, /id="project-art-path">assets\/executor-compare\/background\.png<\/code>/);
 });
 
 test('portrait and short landscape layout contracts keep controls outside the decorative image', () => {

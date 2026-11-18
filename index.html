@@ -99,6 +99,54 @@ body { background: #eef4f5; }
   .workspace #count { padding: 16px 0; }
 }
 </style>
+<style id="project-brief-styles">
+body { gap: 24px; }
+.project-brief {
+  width: min(100%, 980px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+  gap: 24px;
+  align-items: center;
+  padding: 24px 28px;
+  border: 1px solid #dce3ef;
+  border-radius: 28px;
+  background: #fff;
+  box-shadow: 0 20px 60px #24324a0d;
+}
+.project-brief h2 { margin: 10px 0; font-size: 24px; }
+.project-brief p { margin: 8px 0; color: #606e84; font-size: 14px; line-height: 1.7; }
+.project-brief code {
+  padding: 1px 6px;
+  border-radius: 6px;
+  background: #eef2f8;
+  color: #405bba;
+  overflow-wrap: anywhere;
+}
+.project-art {
+  position: relative;
+  margin: 0;
+  min-height: 180px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 18px;
+  background: linear-gradient(135deg, #e8f2f6, #d6e5e9);
+}
+.project-art img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.project-art-placeholder { padding: 24px; color: #435e70; font-size: 13px; text-align: center; }
+.project-art-placeholder::before {
+  content: '';
+  display: block;
+  width: 48px;
+  height: 2px;
+  margin: 0 auto 12px;
+  border-radius: 999px;
+  background: #9db6c2;
+}
+@media (max-width: 760px) {
+  .project-brief { grid-template-columns: minmax(0, 1fr); padding: 20px; }
+}
+</style>
 </head>
 <body>
   <div class="workspace" id="workspace">
@@ -131,6 +179,18 @@ body { background: #eef4f5; }
     <p class="hint">支持负数 · 重置后回到 0</p>
   </main>
   </div>
+  <section class="project-brief" id="project-brief" aria-labelledby="project-brief-title">
+    <div class="project-brief-copy">
+      <p class="eyebrow">项目说明</p>
+      <h2 id="project-brief-title">山间专注 · 协作试验</h2>
+      <p id="project-brief-text">连续开发验证：保留计数、累计操作次数与专注模式，再逐步加入可追踪的界面和美术素材。</p>
+      <p>美术展示区域：<code id="project-art-path">assets/executor-compare/background.png</code></p>
+    </div>
+    <figure class="project-art" id="project-art-frame">
+      <img id="project-art" src="assets/executor-compare/background.png" decoding="async" alt="" hidden>
+      <figcaption class="project-art-placeholder" id="project-art-placeholder">美术素材准备中</figcaption>
+    </figure>
+  </section>
   <script>
 function createCounter() {
   let value = 0;
@@ -189,6 +249,21 @@ function mountFocus(root) {
   renderImage(image.complete && image.naturalWidth > 0);
 }
 if (typeof document !== 'undefined') mountFocus(document);
+</script>
+<script id="project-art-script">
+function mountProjectArt(root) {
+  const image = root.querySelector('#project-art');
+  const placeholder = root.querySelector('#project-art-placeholder');
+  if (!image || !placeholder) return;
+  function renderImage(loaded) {
+    image.hidden = !loaded;
+    placeholder.hidden = loaded;
+  }
+  image.addEventListener('load', function () { renderImage(image.naturalWidth > 0); });
+  image.addEventListener('error', function () { renderImage(false); });
+  renderImage(image.complete && image.naturalWidth > 0);
+}
+if (typeof document !== 'undefined') mountProjectArt(document);
 </script>
 </body>
 </html>
