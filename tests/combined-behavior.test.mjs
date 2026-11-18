@@ -56,6 +56,9 @@ test('all page scripts coexist through focus changes, image failure and repeated
   click('decrement');
   click('focus-toggle');
   get('mountain-image').emit('error');
+  get('project-art').emit('error');
+  assert.equal(get('project-art').hidden, true);
+  assert.equal(get('project-art-placeholder').hidden, false);
   check(-1, 1, true);
   click('decrement');
   click('increment');
@@ -65,6 +68,10 @@ test('all page scripts coexist through focus changes, image failure and repeated
   check(0, 5, true);
   get('mountain-image').naturalWidth = 1672;
   get('mountain-image').emit('load');
+  get('project-art').naturalWidth = 1672;
+  get('project-art').emit('load');
+  assert.equal(get('project-art').hidden, false);
+  assert.equal(get('project-art-placeholder').hidden, true);
   click('focus-toggle');
   assert.equal(get('mountain-image').hidden, false);
   assert.equal(get('image-placeholder').hidden, true);

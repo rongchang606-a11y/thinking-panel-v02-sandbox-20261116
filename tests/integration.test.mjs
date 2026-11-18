@@ -51,7 +51,7 @@ test('the accepted mountain image resolves locally and matches the supplied PNG'
   assert.match(mountain, /alt=""/);
 });
 
-test('the project art display references the configured relative path before the asset arrives', () => {
+test('the project art display references the delivered custom relative path', () => {
   const artPath = 'assets/executor-compare/background.png';
   const images = [...html.matchAll(/<img\b[^>]*>/g)].map(match => match[0]);
   assert.equal(images.length, 2);

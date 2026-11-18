@@ -10,7 +10,9 @@ test('production build copies the HTML, exact PNG and manifest into a fresh deli
   const workspace = mkdtempSync(join(root, '.build-test-'));
   try {
     mkdirSync(join(workspace, 'assets/v04'), { recursive: true });
-    const files = ['index.html', 'assets/v04/background.png', 'assets/v04/manifest.json'];
+    mkdirSync(join(workspace, 'assets/executor-compare'), { recursive: true });
+    const files = ['index.html', 'assets/v04/background.png', 'assets/v04/manifest.json',
+      'assets/executor-compare/background.png', 'assets/executor-compare/manifest.json'];
     for (const file of files) copyFileSync(join(root, file), join(workspace, file));
     // Exercise the protected production script unchanged, using the test runner's Node.
     const result = spawnSync(process.execPath, [join(root, 'scripts/build.mjs')], {
