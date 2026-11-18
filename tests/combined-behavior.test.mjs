@@ -43,6 +43,7 @@ test('all page scripts coexist through focus changes, image failure and repeated
   const get = openPage();
   const click = id => get(id).emit('click');
   const check = (count, operations, focused) => {
+    assert.equal(get('counter-summary').textContent, `当前计数：${count}；累计操作：${operations}`);
     assert.equal(get('count').textContent, String(count));
     assert.equal(get('operations').textContent, String(operations));
     assert.equal(get('workspace').classList.contains('is-focused'), focused);
@@ -94,6 +95,7 @@ test('A and B selected notes survive add-ten, focus changes and image recovery t
   const get = openPage();
   const click = id => get(id).emit('click');
   const verify = (count, operations, focused) => {
+    assert.equal(get('counter-summary').textContent, `当前计数：${count}；累计操作：${operations}`);
     assert.equal(get('count').textContent, String(count));
     assert.equal(get('operations').textContent, String(operations));
     assert.equal(get('workspace').classList.contains('is-focused'), focused);

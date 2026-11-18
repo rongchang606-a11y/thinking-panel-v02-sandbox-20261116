@@ -8,7 +8,7 @@ const css = html.match(/<style id="focus-styles">([\s\S]*?)<\/style>/)[1];
 const counter = html.match(/<script>([\s\S]*?)<\/script>/)[1];
 function fixture({ complete = false, naturalWidth = 0 } = {}) {
   const elements = new Map();
-  for (const id of ['workspace', 'focus-toggle', 'mountain-image', 'image-placeholder', 'count', 'operations', 'increment', 'addTen', 'decrement', 'reset']) {
+  for (const id of ['workspace', 'focus-toggle', 'mountain-image', 'image-placeholder', 'count', 'operations', 'counter-summary', 'increment', 'addTen', 'decrement', 'reset']) {
     const classes = new Set();
     const handlers = new Map();
     elements.set('#' + id, {

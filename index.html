@@ -120,6 +120,7 @@ body { background: #eef4f5; }
     <p class="description" id="workspace-note">先验证，再扩展</p>
     <output id="count" aria-live="polite" aria-atomic="true" aria-label="当前计数">0</output>
     <p class="operation-summary">累计操作次数：<output id="operations" aria-live="polite" aria-atomic="true" aria-label="累计操作次数">0</output></p>
+    <p id="counter-summary" class="operation-summary">当前计数：0；累计操作：0</p>
     <button id="focus-toggle" class="focus-toggle" type="button" aria-pressed="false" aria-controls="workspace">专注模式</button>
     <div class="actions" role="group" aria-label="调整计数">
       <button id="decrement" type="button" aria-label="减一">−1</button>
@@ -148,9 +149,11 @@ function mountCounter(root) {
   const counter = createCounter();
   const output = root.querySelector('#count');
   const operationsOutput = root.querySelector('#operations');
+  const summary = root.querySelector('#counter-summary');
   const render = () => {
     output.textContent = String(counter.value);
     operationsOutput.textContent = String(counter.operations);
+    summary.textContent = `当前计数：${counter.value}；累计操作：${counter.operations}`;
   };
   for (const action of ['increment', 'addTen', 'decrement', 'reset']) {
     root.querySelector(`#${action}`).addEventListener('click', () => {
