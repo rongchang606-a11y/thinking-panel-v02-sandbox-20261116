@@ -1,9 +1,10 @@
 import test from 'node:test';
+import { runInNewContext } from 'node:vm';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 const html = readFileSync(new URL('../index.html', import.meta.url), 'utf8');
-const script = html.match(/<script type="module">([\s\S]*?)<\/script>/)[1];
-const { createCounter, mountCounter } = await import(`data:text/javascript;base64,${Buffer.from(script).toString('base64')}`);
+const script = html.match(/<script>([\s\S]*?)<\/script>/)[1];
+const { createCounter, mountCounter } = runInNewContext(script + ";({ createCounter, mountCounter })");
 
 test('starts at zero and increments repeatedly', () => {
   const counter = createCounter();
@@ -147,3 +148,16 @@ test('page provides accessible controls and self-contained styles and logic', ()
   assert.ok(script.includes('mountCounter(document)'));
   assert.doesNotMatch(html, /<(?:script|link)[^>]*(?:src|href)=/);
 });
+
+test('page shows the personally selected workflow label as a visible paragraph', () => {
+  const main = html.match(/<main\b[^>]*>([\s\S]*?)<\/main>/)[1];
+  const paragraphs = [...main.matchAll(/<p\b([^>]*)>([^<]*)<\/p>/g)];
+  const status = paragraphs.filter(([, attributes]) => /\bid="workflow-status"/.test(attributes));
+  assert.equal(status.length, 1, 'exactly one workflow status paragraph is present in the page');
+  assert.equal(status[0][2], '先记录，再推进');
+  assert.doesNotMatch(status[0][1], /\b(?:hidden|style|aria-hidden)\b/i);
+  assert.equal([...html.matchAll(/\bid="workflow-status"/g)].length, 1);
+  assert.ok(main.indexOf('id="project-description"') < status[0].index);
+  assert.ok(status[0].index < main.indexOf('<output id="count"'));
+});
+
