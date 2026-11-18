@@ -1,9 +1,107 @@
-# Thinking Panel V0.2 isolated sandbox
+# 思维面板 V0.2 · 计数器
 
-This repository contains disposable development test code only. It is not LifeOS or any production project.
+## V07 异常退出恢复与计数摘要
 
-The baseline is a minimal dependency-free Web scaffold. Actual features and tests are implemented by the background Codex task on `automation/task-*` branches.
+恢复时已存在 `p#counter-summary` 和同一 `render` 内的更新代码，本轮保留该检查点，没有重复添加节点或计数来源。摘要只读显示“当前计数：<数值>；累计操作：<次数>”，初始为“当前计数：0；累计操作：0”。加一、减一、加十和重置后直接读取既有 counter 的 value 与 operations；零值时重置仍累计一次操作。专注切换不计入操作，原有文案、+10、山景及占位行为继续保留。
 
-`npm test` runs Node's built-in test runner; `npm run build` creates a static Web build.
+`tests/counter-summary.test.mjs` 执行页面实际计数脚本和按钮处理函数，逐次核对摘要、两个原有显示及返回状态，覆盖负数、加十、回零、零值重复重置，并检查摘要为唯一只读段落。既有组合测试继续覆盖专注切换、图片失败和恢复期间的摘要同步。
 
-The trusted delivery workflow tests task branches and opens or updates a PR after successful CI. Acceptance in Thinking Panel records the exact commit; no automatic merge or production release is performed.
+固定共享文档沿用 revision 1、《V0.5 协作与交付约定》版本 1、验证标识 `workspace-v05`；本轮 inputs 为空，没有新增输入 SHA。恢复首轮测试发现素材清单和共享文档被转换为 CRLF；仅恢复为 LF 后，两者 SHA-256 与既有固定校验值完全一致，PNG 不变。
+
+本轮测试与构建使用任务指定的隔离 Node 24.22.3。未执行网络或 Git 操作；真实提交、CI 和未合并 PR 仍由可信交付桥在进程退出后处理，本人验收尚待完成。
+
+使用纯 HTML、CSS 和 JavaScript 实现的独立测试项目，无第三方依赖。
+
+## 功能
+
+- 标题下显示项目说明“连续开发验证项目”，保留原有说明“从零开始，记录你的每一次变化。”。
+- 初始计数为 0，点击「+1」加一，点击「−1」减一，支持负数。
+- 点击「+10」增加十，每次只累计一次操作，保留当前基线功能。
+- 项目说明后同时保留 A 的 p#workflow-status“先记录，再推进”和 B 的 p#workspace-note“先验证，再扩展”。
+- 点击「重置」回到 0。刷新页面也会从 0 开始，不保存历史数据。
+- “累计操作次数”初始为 0，加一、加十、减一、重置每次点击都累计一次；数值已经为 0 时再次重置也计入。重置不会清空操作次数，刷新页面后两项均归零。
+- 原生按钮支持 Tab 聚焦及 Enter / 空格操作，实时区域向辅助技术报告计数变化。
+- 布局适配手机和桌面屏幕。
+
+## 本地使用
+
+需要 Node.js 22 或更高版本，不需要安装依赖。
+
+直接用现代浏览器打开 `index.html`，或部署构建后的 `dist` 目录到静态站点。样式和经典 JavaScript 脚本均内嵌，无需加载外部字体或依赖。
+
+```sh
+npm test
+npm run build
+```
+
+`npm test` 使用 Node 内置测试运行器，覆盖初始值、连续加减、负数、重置、操作次数累计（含零值时重复重置）、实例独立性、按钮事件与两项显示同步、项目说明在标题下的位置和可见性，以及页面控件和自包含资源。
+
+`npm run build` 生成`dist/index.html` 及已到位的素材。构建输出可直接供静态 HTTP 服务使用。
+
+## 文件
+
+- `index.html`：页面结构、无障碍属性、响应式样式、计数状态和按钮绑定。
+- `tests/counter.test.mjs`：自动化测试，不依赖浏览器或网络。
+
+提交与 PR 由可信交付桥在任务进程结束后处理，本项目不自动合并或发布。
+
+## V04 山间专注整合
+
+- 实际主视觉已到位：`assets/v04/background.png`，1672×941 横版 PNG。`assets/v04/manifest.json` 保留美术生成工具、提示词、尺寸和时间；本轮没有生成或修改图片。
+- 图片以原生 `<img>` 引用，装饰图片使用空替代文本，不参与点击。标题放在画面上方留白处，山景与计数按钮分处两个区域。桌面使用双列，760px 及以下改为单列，图片区域按素材比例展示；短横屏从顶部排版并允许页面滚动。
+- 「专注模式」隐藏山景、放大计数和操作按钮，再次点击「恢复普通布局」恢复展示。切换提供 `aria-pressed` 状态，保留当前计数和累计操作次数，切换自身不计入操作次数。加一、减一、负数、重复重置及项目说明均保留。
+- 图片未加载、加载失败时显示渐变占位；加载完成后隐藏占位，缓存命中也能直接展示。图片失败不影响计数或布局切换。
+- 沿用共享文档要求的单文件内嵌样式与经典脚本，无模块、外部字体、依赖或网络服务。部署时必须一并交付素材目录。
+
+### 输入来源
+
+以下提交号是可信任务记录中的输入版本，并非本轮创建的提交：
+
+| 输入 | 版本 |
+| --- | --- |
+| 开发与基线 | `de9c58feb999a69c467df90d950fd3ca3fa51707` |
+| 美术 | `6f88df3a87c5de699c562c595ee782a70576b606` |
+| PNG SHA-256 | `3fc0f71b59f52bf3c4d8c6e7417f69a49e130c2dfb97cf67b6cceae8fdf42da4` |
+
+### 验证范围与环境限制
+
+`tests/focus.test.mjs` 用 Node VM 执行页面实际脚本，覆盖专注切换、切换期间计数与累计操作、缓存及失败占位。`tests/integration.test.mjs` 新增真实 PNG 哈希、尺寸和解压检查、页面图片引用、横竖屏样式契约、原生可访问按钮及来源文档检查。全部测试只使用 Node 内置能力。
+
+响应式与按钮检查属于自动化行为及静态契约验证，本轮没有完成浏览器截图或真实键盘操作验收。
+
+## V0.5 决策与共享文档
+
+本人在 2026-11-17T13:10:41.525Z 对“项目说明采用哪种表达？”选择 B「先验证后扩展」（决策键 `workspace-note-tone`）。页面新增 `p#workspace-note`，内容为“先验证，再扩展”；此决定仅涉及文案，原有功能和项目说明均保留。
+
+依据固定共享文档《V0.5 协作与交付约定》，版本 1（revision: 1），验证标识 `workspace-v05`。原文保存在 [docs/workspace-v05.md](docs/workspace-v05.md)，与本轮任务提供的快照一致。
+
+新增自动化测试检查所选文案、说明的可见性和位置、共享文档快照及 README 的决定记录。测试与构建结果由任务执行报告如实记录；本人验收以及可信交付桥的提交、CI 和未合并 PR 结果需另行核实。
+
+## V06 固定快照集成
+
+共享文档固定快照：revision 1；《V0.3 连续开发验证规范》保留全部基线功能，单文件内嵌实现且无依赖。项目“山间专注 · 协作试验”revision 1。
+
+| 集成输入 | 精确 Git SHA |
+| --- | --- |
+| V04 协作整合 | e4250d3235dc51da67f74ec46176d53bcf7cd290 |
+| V05 本人决策交付 | 5453e51012149ef052da3bc53109b5d65556ca29 |
+
+V04 的山景、素材清单和美术交付说明沿用原成果；PNG 与清单逐字节复制。V05 的已选文案保存在 p#workspace-note，共享文档逐字节复制。普通脚本统一放在页面底部，专注切换与计数互不干扰，说明在两种布局下都可见。
+
+验证使用任务指定的 Node 24.22.3；先将其目录置于当前 Shell 的 PATH 首位，再用该 Node 和 npm-cli.js 的绝对路径依次执行 npm test 与 npm run build。测试执行页面实际脚本，覆盖组合操作、图片失败与恢复、独立页面状态；构建测试运行原始构建脚本并逐字节核对 HTML、PNG 和素材清单。测试不依赖控制器私有快照。
+
+构建产物为 dist/index.html 和 dist/assets/v04/；部署须一起交付素材目录。docs/workspace-v05.md 是仓库交付文档，现有构建脚本不将 docs 复制到站点。
+
+本轮仅完成本地集成与自动化检查，未进行浏览器视觉或真实键盘验收。提交、CI 和未合并 PR 由可信交付桥在进程退出后处理，其结果未在本轮核实，集成完成不代替本人验收。
+
+## V06-C 最终集成
+
+本次采用 A 输入 `99ebaf06cf3b864b408f0d8d8ee0959214bc9fd5` 与 B 输入 `d3932c2be5f8874933d75f18deaaf1056353192b`。A 已由本人选择方案 A“先记录，再推进”，严格沿用输入文本。B 的全部计数、累计操作、专注模式、山景、占位、项目说明、V05 文案和文档均保留；当前基线的 +10 同时保留。
+
+固定共享文档 revision 1；《V0.5 协作与交付约定》版本 1，验证标识 `workspace-v05`。最终依赖及操作说明见 [docs/continuous-workflow.md](docs/continuous-workflow.md)。
+
+新增测试执行最终页面实际脚本，验证两条已选文案、加十、专注切换、图片失败与恢复的组合行为，并核验素材和文档的固定校验值。浏览器视觉、真实键盘操作和本人最终验收尚未完成。远端提交、CI、未合并 PR 和预览由可信交付桥后续处理，本轮未核实。
+
+## 执行器对比
+
+交付标记文件：[EXECUTOR-SMOKE.md](EXECUTOR-SMOKE.md)。该文件只有两行：第一行 `executor: deepseek-v4.1-flash`，第二行 `marker: executor-smoke`。
