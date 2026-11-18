@@ -82,7 +82,7 @@ test('each action counts once, including repeated resets at zero', () => {
 
 test('all button handlers update the displayed count', () => {
   const elements = new Map();
-  for (const id of ['count', 'operations', 'increment', 'addTen', 'decrement', 'reset']) {
+  for (const id of ['count', 'operations', 'counter-summary', 'increment', 'addTen', 'decrement', 'reset']) {
     elements.set(`#${id}`, {
       textContent: '',
       addEventListener(type, handler) {
