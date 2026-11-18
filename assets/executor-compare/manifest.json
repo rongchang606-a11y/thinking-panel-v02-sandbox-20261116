@@ -1,0 +1,9 @@
+{
+  "tool": "image_gen.imagegen",
+  "prompt": "Use case: stylized-concept\nAsset type: background illustration for a mountain focus counter web page.\nPrimary request: Generate a polished abstract landscape PNG, wide horizontal composition close to 16:9, at least 1024x576 pixels, ideally 1536x864.\nScene: layered flowing mountain silhouettes receding into soft atmospheric mist, a quiet valley and broad open sky. Abstract organic shapes, subtle painterly grain, restrained detail and gentle gradients. Calm contemplative mood suited to sustained focus.\nComposition: panoramic landscape with balanced visual weight, generous quiet negative space, soft transitions and clear depth.\nConstraints: full opaque image, no text, no letters, no numbers, no logos, no watermark, no UI, no frame.",
+  "width": 1672,
+  "height": 941,
+  "format": "PNG",
+  "generatedAt": "2026-11-18T08:33:10.570Z",
+  "artPath": "assets/executor-compare/background.png"
+}
