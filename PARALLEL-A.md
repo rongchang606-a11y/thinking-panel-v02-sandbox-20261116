@@ -1,1 +1,2 @@
 parallel: ok
+inherited: ok
