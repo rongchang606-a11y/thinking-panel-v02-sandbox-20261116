@@ -1,0 +1,2 @@
+parallel: ok
+inherited: yes
